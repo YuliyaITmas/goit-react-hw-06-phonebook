@@ -3,7 +3,7 @@ import { FormContext } from 'components/ContactForm/FormContext';
 import * as yup from 'yup';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import { useDispatch, useSelector } from 'react-redux';
-import { addContact } from 'store/actions';
+import { addContact } from 'redux/contactsSlice';
 
 const options = {
   width: '320px',
@@ -20,22 +20,23 @@ const options = {
 export const ContactForm = () => {
   const dispatch = useDispatch();
   const contacts = useSelector(state => state.contacts);
+  
 
   const handleSubmit = (values, { resetForm }) => {
+    const isContactExists = contacts.some(
+      contact =>
+        contact.name.toLowerCase().trim() ===
+          values.name.toLowerCase().trim() ||
+        contact.number.trim() === values.number.trim()
+    );
 
-       const isContactExists = contacts.some(
-         contact =>
-           contact.name.toLowerCase().trim() ===
-             values.name.toLowerCase().trim() ||
-           contact.number.trim() === values.number.trim()
-       );
-  
-      if (isContactExists) {
-    Notify.failure(`${values.name} is already in contacts`, options);
-        return;
-      }
-    
-    dispatch(addContact(values.name, values.number));
+    if (isContactExists) {
+      Notify.failure(`${values.name} is already in contacts`, options);
+      resetForm()
+      return;
+    }
+
+    dispatch(addContact({ name: values.name, number: values.number }));
     resetForm();
   };
   const validationSchema = yup.object().shape({

@@ -4,17 +4,27 @@ import { FiUserMinus } from 'react-icons/fi';
 import { List, Item, Name, Number, Delete } from './ContactList.styled';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { deleteContact } from 'store/actions';
+import { deleteContact } from 'redux/contactsSlice';
 
 export const ContactList = () => {
   const dispatch = useDispatch();
 
   const contacts = useSelector(state => state.contacts);
+
   const filter = useSelector(state => state.filter);
 
-  const filteredContacts = contacts.filter(contact =>
-    contact.name.toLowerCase().includes(filter.toLowerCase().trim())
-  );
+  const normalizedFilter = filter.toLowerCase().trim();
+
+  let filteredContacts = [];
+
+  if (normalizedFilter) {
+    filteredContacts = contacts.filter(contact =>
+      contact.name.toLowerCase().includes(normalizedFilter)
+    );
+  } else {
+    filteredContacts = contacts;
+  }
+
   const handleDelete = contactId => dispatch(deleteContact(contactId));
 
   return (
